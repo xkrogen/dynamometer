@@ -17,7 +17,6 @@ import java.util.Set;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.HdfsConfiguration;
@@ -27,6 +26,7 @@ import org.apache.hadoop.hdfs.protocol.HdfsConstants;
 import org.apache.hadoop.hdfs.server.common.HdfsServerConstants.StartupOption;
 import org.apache.hadoop.hdfs.server.datanode.DataNode;
 import org.apache.hadoop.hdfs.server.datanode.DataNodeTestUtils;
+import org.apache.hadoop.hdfs.server.datanode.SimulatedFSDataset;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.util.Time;
 import org.apache.hadoop.util.Tool;
@@ -89,9 +89,9 @@ public class SimulatedDataNodes extends Configured implements Tool {
     System.out.println("DataNodes will connect to NameNode at " + nameNodeAdr);
 
     System.setProperty(MiniDFSCluster.PROP_TEST_BUILD_DATA,
-        DataNode.getStorageLocations(getConf()).get(0).getFile().getAbsolutePath());
-    SimulatedMultiStorageFSDataset.setFactory(getConf());
-    getConf().setLong(SimulatedMultiStorageFSDataset.CONFIG_PROPERTY_CAPACITY, STORAGE_CAPACITY);
+        DataNode.getStorageLocations(getConf()).get(0).getUri().getPath());
+    SimulatedFSDataset.setFactory(getConf());
+    getConf().setLong(SimulatedFSDataset.CONFIG_PROPERTY_CAPACITY, STORAGE_CAPACITY);
 
     UserGroupInformation.setConfiguration(getConf());
     MiniDFSCluster mc = new MiniDFSCluster();

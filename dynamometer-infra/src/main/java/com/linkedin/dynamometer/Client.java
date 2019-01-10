@@ -14,6 +14,7 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 import com.linkedin.dynamometer.workloadgenerator.audit.AuditReplayMapper;
 import com.linkedin.dynamometer.workloadgenerator.WorkloadDriver;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -30,13 +31,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -85,8 +86,8 @@ import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.client.api.YarnClientApplication;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
-import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.util.Records;
+import org.junit.Assert;
 
 
 /**
@@ -226,7 +227,10 @@ public class Client extends Configured implements Tool {
    * @param args Command line arguments
    */
   public static void main(String[] args) throws Exception {
-    Client client = new Client(ClassUtil.findContainingJar(ApplicationMaster.class));
+    Client client = new Client(ClassUtil.findContainingJar(ApplicationMaster.class),
+        // JUnit is required by MiniDFSCluster at runtime, but is not included in standard Hadoop
+        // dependencies, so it must explicitly included here
+        ClassUtil.findContainingJar(Assert.class));
     System.exit(ToolRunner.run(new YarnConfiguration(), client, args));
   }
 
@@ -493,7 +497,7 @@ public class Client extends Configured implements Tool {
     // we explicitly add it here
     Map<String, LocalResource> localResources = new HashMap<>();
     LocalResource scRsrc = LocalResource.newInstance(
-        ConverterUtils.getYarnUrlFromPath(DynoConstants.DYNO_DEPENDENCIES.getPath(env)),
+        org.apache.hadoop.yarn.api.records.URL.fromPath(DynoConstants.DYNO_DEPENDENCIES.getPath(env)),
         LocalResourceType.ARCHIVE, LocalResourceVisibility.APPLICATION,
         DynoConstants.DYNO_DEPENDENCIES.getLength(env), DynoConstants.DYNO_DEPENDENCIES.getTimestamp(env));
     localResources.put(DynoConstants.DYNO_DEPENDENCIES.getResourcePath(), scRsrc);

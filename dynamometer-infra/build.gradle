@@ -4,6 +4,8 @@
  */
 dependencies {
   compile 'commons-cli:commons-cli:1.2'
+  // JUnit is required by MiniDFSCluster, which is used outside of tests
+  compile 'junit:junit:4.11'
   compile deps.hadoop.hdfs
   compile deps.hadoop.common
   compile deps.hadoop.'yarn-api'
@@ -16,7 +18,6 @@ dependencies {
   testCompile deps.hadoop.'common-test'
   testCompile deps.hadoop.'yarn-server-test'
   testCompile deps.hadoop.minicluster
-  testCompile 'junit:junit:4.11'
   testCompile 'org.mockito:mockito-all:1.10.19'
 }
 

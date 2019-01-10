@@ -30,7 +30,7 @@ import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hdfs.DFSUtil;
+import org.apache.hadoop.hdfs.DFSUtilClient;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.hdfs.client.BlockReportOptions;
 import org.apache.hadoop.hdfs.protocol.ClientDatanodeProtocol;
@@ -317,7 +317,7 @@ public class DynoInfraUtils {
   private static void triggerDataNodeBlockReport(Configuration conf, String dataNodeTarget) throws IOException {
     InetSocketAddress datanodeAddr = NetUtils.createSocketAddr(dataNodeTarget);
 
-    ClientDatanodeProtocol dnProtocol = DFSUtil.createClientDatanodeProtocolProxy(
+    ClientDatanodeProtocol dnProtocol = DFSUtilClient.createClientDatanodeProtocolProxy(
         datanodeAddr, UserGroupInformation.getCurrentUser(), conf,
         NetUtils.getSocketFactory(conf, ClientDatanodeProtocol.class));
 

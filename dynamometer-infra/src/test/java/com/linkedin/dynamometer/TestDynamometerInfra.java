@@ -100,7 +100,7 @@ public class TestDynamometerInfra {
 
   private static final String HADOOP_BIN_PATH_KEY = "dyno.hadoop.bin.path";
   private static final String HADOOP_BIN_VERSION_KEY = "dyno.hadoop.bin.version";
-  private static final String HADOOP_BIN_VERSION_DEFAULT = "2.7.6";
+  private static final String HADOOP_BIN_VERSION_DEFAULT = "3.1.1";
   private static final String FSIMAGE_FILENAME = "fsimage_0000000000000061740";
   private static final String VERSION_FILENAME = "VERSION";
 
@@ -215,7 +215,8 @@ public class TestDynamometerInfra {
     miniYARNCluster.waitForNodeManagersToConnect(30000);
 
     RMNodeLabelsManager nodeLabelManager = miniYARNCluster.getResourceManager().getRMContext().getNodeLabelManager();
-    nodeLabelManager.addToCluserNodeLabels(Sets.newHashSet(NAMENODE_NODELABEL, DATANODE_NODELABEL));
+    nodeLabelManager.addToCluserNodeLabelsWithDefaultExclusivity(
+        Sets.newHashSet(NAMENODE_NODELABEL, DATANODE_NODELABEL));
     Map<NodeId, Set<String>> nodeLabels = new HashMap<>();
     nodeLabels.put(miniYARNCluster.getNodeManager(0).getNMContext().getNodeId(), Sets.newHashSet(NAMENODE_NODELABEL));
     nodeLabels.put(miniYARNCluster.getNodeManager(1).getNMContext().getNodeId(), Sets.newHashSet(DATANODE_NODELABEL));
@@ -255,7 +256,7 @@ public class TestDynamometerInfra {
 
   @Test
   public void testNameNodeInYARN() throws Exception {
-    final Client client = new Client(JarFinder.getJar(ApplicationMaster.class));
+    final Client client = new Client(JarFinder.getJar(ApplicationMaster.class), JarFinder.getJar(Assert.class));
     Configuration conf = new Configuration(yarnConf);
     conf.setLong(AuditLogDirectParser.AUDIT_START_TIMESTAMP_KEY, 60000);
     client.setConf(conf);
@@ -433,7 +434,7 @@ public class TestDynamometerInfra {
   /**
    * Look for the resource files relevant to {@code hadoopBinVersion} and upload them
    * onto the MiniDFSCluster's HDFS for use by the subsequent jobs.
-   * @param hadoopBinVersion The version string (e.g. "2.7.4") for which to look for resources.
+   * @param hadoopBinVersion The version string (e.g. "3.1.1") for which to look for resources.
    */
   private static void uploadFsimageResourcesToHDFS(String hadoopBinVersion) throws IOException {
     // Keep only the major/minor version for the resources path
