@@ -2,17 +2,17 @@
  * Copyright 2017 LinkedIn Corporation. All rights reserved. Licensed under the BSD-2 Clause license.
  * See LICENSE in the project root for license information.
  */
-// buildscript {
-//   repositories {
-//     maven {
-//       url "https://plugins.gradle.org/m2/"
-//     }
-//   }
-//   dependencies {
-//     // license-gradle plugin: https://github.com/hierynomus/license-gradle-plugin
-//     classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0"
-//   }
-// }
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    // license-gradle plugin: https://github.com/hierynomus/license-gradle-plugin
+    classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.15.0"
+  }
+}
 
 def hadoopVersion = '2.7.5'
 ext.deps = [
@@ -49,10 +49,10 @@ subprojects {
   apply plugin: 'java'
   apply plugin: 'eclipse'
   apply plugin: 'idea'
-  //apply plugin: 'license'
-  plugins {
-    id "com.github.hierynomus.license" version "0.15.0"
-  }
+  apply plugin: 'license'
+  //plugins {
+  //  id "com.github.hierynomus.license" version "0.15.0"
+  //}
 
   sourceCompatibility = 1.8
 
