@@ -24,6 +24,8 @@ import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -262,8 +264,45 @@ public class SimulatedMultiStorageFSDataset extends SimulatedFSDataset {
             + theBlock);
       } else {
         SimulatedOutputStream crcStream = new SimulatedOutputStream();
-        return new ReplicaOutputStreams(oStream, crcStream, requestedChecksum,
-            getStorage(theBlock).getVolume().isTransientStorage());
+        return instantiateReplicaOutputStreams(oStream, crcStream,
+            requestedChecksum, getStorage(theBlock).getVolume());
+      }
+    }
+
+    private ReplicaOutputStreams instantiateReplicaOutputStreams(
+        OutputStream dataOut, OutputStream checksumOut, DataChecksum checksum,
+        FsVolumeSpi volume) {
+      Constructor<ReplicaOutputStreams> constructor;
+      List<Object> argList = new ArrayList<>();
+      argList.add(dataOut);
+      argList.add(checksumOut);
+      argList.add(checksum);
+
+      try {
+        constructor = ReplicaOutputStreams.class.getConstructor(
+            OutputStream.class, OutputStream.class, DataChecksum.class,
+            boolean.class);
+        argList.add(volume.isTransientStorage());
+      } catch (NoSuchMethodException nsme) {
+        try {
+          Class<?> fileIoProviderClass = Class.forName(
+              "org.apache.hadoop.hdfs.server.datanode.FileIoProvider");
+          constructor = ReplicaOutputStreams.class.getConstructor(
+              OutputStream.class, OutputStream.class, DataChecksum.class,
+              FsVolumeSpi.class, fileIoProviderClass);
+          argList.add(volume);
+          argList.add(null); // no FileIoProvider since no IO is done
+        } catch (ClassNotFoundException | NoSuchMethodException e) {
+          throw new RuntimeException(
+              "Unable to instantiate ReplicaOutputStreams", e);
+        }
+      }
+      try {
+        return constructor.newInstance(argList.toArray());
+      } catch (InstantiationException | IllegalAccessException
+          | InvocationTargetException e) {
+        throw new RuntimeException(
+            "Unable to instantiate ReplicaOutputStreams", e);
       }
     }
 
@@ -324,6 +363,10 @@ public class SimulatedMultiStorageFSDataset extends SimulatedFSDataset {
     @Override
     public boolean isOnTransientStorage() {
       return false;
+    }
+
+    public OutputStream createRestartMetaStream() throws IOException {
+      return null;
     }
   }
 
@@ -509,7 +552,6 @@ public class SimulatedMultiStorageFSDataset extends SimulatedFSDataset {
       return false;
     }
 
-    @Override
     public void reserveSpaceForRbw(long bytesToReserve) {
     }
 
@@ -537,6 +579,12 @@ public class SimulatedMultiStorageFSDataset extends SimulatedFSDataset {
     public byte[] loadLastPartialChunkChecksum(
         File blockFile, File metaFile) throws IOException {
       return null;
+    }
+
+    public void reserveSpaceForReplica(long l) {
+    }
+
+    public void releaseLockedMemory(long l) {
     }
   }
 
@@ -994,8 +1042,8 @@ public class SimulatedMultiStorageFSDataset extends SimulatedFSDataset {
     return new ReplicaHandler(binfo, null);
   }
 
-  synchronized InputStream getBlockInputStream(ExtendedBlock b
-  ) throws IOException {
+  public synchronized InputStream getBlockInputStream(ExtendedBlock b)
+      throws IOException {
     BInfo binfo = getBlockMap(b).get(b.getLocalBlock());
     if (binfo == null) {
       throw new IOException("No such Block " + b );
@@ -1034,7 +1082,6 @@ public class SimulatedMultiStorageFSDataset extends SimulatedFSDataset {
     return new LengthInputStream(sin, sin.getLength());
   }
 
-  @Override
   public Set<File> checkDataDir() {
     // nothing to check for simulated data set
     return null;
@@ -1308,7 +1355,6 @@ public class SimulatedMultiStorageFSDataset extends SimulatedFSDataset {
     throw new UnsupportedOperationException();
   }
 
-  @Override
   public List<FsVolumeSpi> getVolumes() {
     throw new UnsupportedOperationException();
   }
@@ -1344,7 +1390,6 @@ public class SimulatedMultiStorageFSDataset extends SimulatedFSDataset {
     throw new UnsupportedOperationException();
   }
 
-  @Override
   public List<FinalizedReplica> getFinalizedBlocksOnPersistentStorage(String bpid) {
     throw new UnsupportedOperationException();
   }
@@ -1364,7 +1409,6 @@ public class SimulatedMultiStorageFSDataset extends SimulatedFSDataset {
     throw new UnsupportedOperationException();
   }
 
-  @Override
   public void submitBackgroundSyncFileRangeRequest(ExtendedBlock block,
       FileDescriptor fd, long offset, long nbytes, int flags) {
     throw new UnsupportedOperationException();
