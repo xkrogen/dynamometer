@@ -47,6 +47,7 @@ import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.api.records.NodeId;
+import org.apache.hadoop.yarn.api.records.NodeLabel;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
@@ -215,7 +216,9 @@ public class TestDynamometerInfra {
     miniYARNCluster.waitForNodeManagersToConnect(30000);
 
     RMNodeLabelsManager nodeLabelManager = miniYARNCluster.getResourceManager().getRMContext().getNodeLabelManager();
-    nodeLabelManager.addToCluserNodeLabels(Sets.newHashSet(NAMENODE_NODELABEL, DATANODE_NODELABEL));
+    Set<NodeLabel> nodeLabelSet = Sets.newHashSet(
+        NodeLabel.newInstance(NAMENODE_NODELABEL), NodeLabel.newInstance(DATANODE_NODELABEL));
+    nodeLabelManager.addToCluserNodeLabels(nodeLabelSet);
     Map<NodeId, Set<String>> nodeLabels = new HashMap<>();
     nodeLabels.put(miniYARNCluster.getNodeManager(0).getNMContext().getNodeId(), Sets.newHashSet(NAMENODE_NODELABEL));
     nodeLabels.put(miniYARNCluster.getNodeManager(1).getNMContext().getNodeId(), Sets.newHashSet(DATANODE_NODELABEL));
