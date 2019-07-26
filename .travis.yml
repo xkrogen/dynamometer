@@ -12,19 +12,16 @@ jobs:
       script: "./gradlew build -x test"
     - stage: test
       script: "./gradlew test --stacktrace --info -Ddyno.hadoop.bin.version=${HADOOP_VERSION} -Ddyno.apache-mirror=https://archive.apache.org/dist"
-      env: HADOOP_VERSION=2.7.2
+      env: HADOOP_VERSION=2.8.1
     - stage: test
       script: "./gradlew test --stacktrace --info -Ddyno.hadoop.bin.version=${HADOOP_VERSION} -Ddyno.apache-mirror=https://archive.apache.org/dist"
-      env: HADOOP_VERSION=2.7.3
-    - stage: test
-      script: "./gradlew test --stacktrace --info -Ddyno.hadoop.bin.version=${HADOOP_VERSION}"
-      env: HADOOP_VERSION=2.7.7
+      env: HADOOP_VERSION=2.8.2
     - stage: test
       script: "./gradlew test --stacktrace --info -Ddyno.hadoop.bin.version=${HADOOP_VERSION} -Ddyno.apache-mirror=https://archive.apache.org/dist"
-      env: HADOOP_VERSION=2.8.0
+      env: HADOOP_VERSION=2.8.3
     - stage: test
       script: "./gradlew test --stacktrace --info -Ddyno.hadoop.bin.version=${HADOOP_VERSION}"
-      env: HADOOP_VERSION=2.8.5
+      env: HADOOP_VERSION=2.8.4
     - stage: test
       script: "./gradlew test --stacktrace --info -Ddyno.hadoop.bin.version=${HADOOP_VERSION}"
       env: HADOOP_VERSION=2.9.0
