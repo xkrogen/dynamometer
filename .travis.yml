@@ -18,6 +18,12 @@ jobs:
       env: HADOOP_VERSION=2.8.4
     - stage: test
       script: "./gradlew test --stacktrace --info -Ddyno.hadoop.bin.version=${HADOOP_VERSION}"
+      env: HADOOP_VERSION=2.9.0
+    - stage: test
+      script: "./gradlew test --stacktrace --info -Ddyno.hadoop.bin.version=${HADOOP_VERSION}"
+      env: HADOOP_VERSION=2.9.1
+    - stage: test
+      script: "./gradlew test --stacktrace --info -Ddyno.hadoop.bin.version=${HADOOP_VERSION}"
       env: HADOOP_VERSION=2.9.2
     - stage: deploy
       script: "./gradlew build -s && ./gradlew ciPerformRelease"
